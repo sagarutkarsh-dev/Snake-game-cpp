@@ -1,11 +1,10 @@
 #include <iostream>
 #include <unistd.h>
-#include <termios.h> // Linux specific library for input
-#include <fcntl.h>   // Linux file control
+#include <termios.h> 
+#include <fcntl.h>  
 
 using namespace std;
 
-// --- LINUX KEYBOARD HACK START ---
 // This function checks if a key has been pressed without blocking the game
 int kbhit(void) {
     struct termios oldt, newt;
@@ -30,7 +29,7 @@ int kbhit(void) {
     }
     return 0;
 }
-// --- LINUX KEYBOARD HACK END ---
+
 
 bool gameOver;
 const int width = 20;
@@ -50,7 +49,7 @@ void Setup() {
 }
 
 void Draw() {
-    system("clear"); // Linux clear screen
+    system("clear"); 
     for (int i = 0; i < width + 2; i++) cout << "#";
     cout << endl;
 
@@ -89,7 +88,7 @@ void Logic() {
     switch (dir) {
     case LEFT: x--; break;
     case RIGHT: x++; break;
-    case UP: y--; break; // In terminals, y decreases as you go UP
+    case UP: y--; break; 
     case DOWN: y++; break;
     default: break;
     }
@@ -112,7 +111,7 @@ int main() {
         Draw();
         Input();
         Logic();
-        usleep(100000); // Speed control
+        usleep(400000); // Speed control
     }
     return 0;
 }
