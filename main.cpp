@@ -35,6 +35,7 @@ bool gameOver;
 const int width = 20;
 const int height = 20;
 int x, y, fruitX, fruitY, score;
+int speed = 400000;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
@@ -57,9 +58,9 @@ void Draw() {
         for (int j = 0; j < width; j++) {
             if (j == 0) cout << "#";
             if (i == y && j == x)
-                cout << "O";
+                cout << "S";
             else if (i == fruitY && j == fruitX)
-                cout << "F";
+                cout << "*";
             else
                 cout << " ";
             if (j == width - 1) cout << "#";
@@ -100,6 +101,7 @@ void Logic() {
     // Eating Fruit
     if (x == fruitX && y == fruitY) {
         score += 10;
+        speed += 200;
         fruitX = rand() % width;
         fruitY = rand() % height;
     }
@@ -111,7 +113,7 @@ int main() {
         Draw();
         Input();
         Logic();
-        usleep(400000); // Speed control
+        usleep(speed); // Speed control
     }
     return 0;
 }
