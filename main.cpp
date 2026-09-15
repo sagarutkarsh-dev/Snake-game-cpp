@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <termios.h> 
 #include <fcntl.h>  
+#include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -35,11 +37,14 @@ bool gameOver;
 const int width = 20;
 const int height = 20;
 int x, y, fruitX, fruitY, score;
+int prev_x,prev_y;
 int speed = 400000;
+vector<vector<int>> Trail(0, vector<int>(2,-1));
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
 void Setup() {
+    srand(time(0));
     gameOver = false;
     dir = STOP;
     x = width / 2;
@@ -47,6 +52,15 @@ void Setup() {
     fruitX = rand() % width;
     fruitY = rand() % height;
     score = 0;
+}
+
+int InTrail(int i, int j){
+    for(int k = 0; k < Trail.size(); k++){
+        if(Trail[k][0] == j && Trail[k][1] == i)
+            return 1;
+    }
+
+    return 0;
 }
 
 void Draw() {
@@ -61,6 +75,8 @@ void Draw() {
                 cout << "S";
             else if (i == fruitY && j == fruitX)
                 cout << "*";
+            else if (InTrail(i, j))
+                cout << "s";
             else
                 cout << " ";
             if (j == width - 1) cout << "#";
@@ -76,10 +92,10 @@ void Draw() {
 void Input() {
     if (kbhit()) {
         switch (getchar()) {
-        case 'a': dir = LEFT; break;
-        case 'd': dir = RIGHT; break;
-        case 'w': dir = UP; break;
-        case 's': dir = DOWN; break;
+        case 'a': if(dir != RIGHT) dir = LEFT; break;
+        case 'd': if(dir != LEFT) dir = RIGHT; break;
+        case 'w': if(dir != DOWN) dir = UP; break;
+        case 's': if(dir != UP) dir = DOWN; break;
         case 'x': gameOver = true; break;
         }
     }
@@ -95,22 +111,42 @@ void Logic() {
     }
     
     // Wall Collision (Game Over if you hit wall)
-    if (x > width || x < 0 || y > height || y < 0)
+    if (x >= width || x < 0 || y >= height || y < 0)
+        gameOver = true;
+
+    if(InTrail(y,x))
         gameOver = true;
     
     // Eating Fruit
     if (x == fruitX && y == fruitY) {
         score += 10;
-        speed += 200;
+        speed -= 10000;
+
+        Trail.push_back({-1, -1});
+
         fruitX = rand() % width;
         fruitY = rand() % height;
     }
+}
+
+void SnakeTrail(){
+    for(int i = Trail.size()-1; i > 0; i--){
+        Trail[i][0] = Trail[i-1][0];
+        Trail[i][1] = Trail[i-1][1];
+    }
+
+    if (Trail.size() > 0) {
+        Trail[0][0] = x;
+        Trail[0][1] = y;
+    }
+
 }
 
 int main() {
     Setup();
     while (!gameOver) {
         Draw();
+        SnakeTrail();
         Input();
         Logic();
         usleep(speed); // Speed control
